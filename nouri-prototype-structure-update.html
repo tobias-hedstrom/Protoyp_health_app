@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Nouri — Healthy Eating App Prototype</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --green: #4A9B6F; --green-light: #E8F5EE; --green-dark: #2D6B47; --green-mid: #6BBF8A;
+  --text: #1C1C1E; --text-secondary: #6C6C70; --text-tertiary: #AEAEB2;
+  --bg: #F9FAF7; --card: #FFFFFF; --border: #E5E5EA;
+  --orange: #F5A623; --red: #FF6B6B; --blue: #3A86FF;
+  --radius: 16px; --radius-sm: 10px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08); --shadow-lg: 0 8px 30px rgba(0,0,0,0.14);
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #D4E8D0 0%, #C8DFC8 50%, #BED6BE 100%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 24px 16px;
+  gap: 20px;
+}
+.page-title {
+  text-align: center;
+  color: #2D6B47;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  opacity: 0.7;
+}
+.phone {
+  width: 393px;
+  height: 852px;
+  background: var(--bg);
+  border-radius: 50px;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.2), inset 0 0 0 1px rgba(0,0,0,0.05);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+.notch {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 34px; background: #000;
+  border-radius: 0 0 20px 20px; z-index: 30;
+}
+.status-bar {
+  height: 54px; background: var(--bg);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 28px 0; flex-shrink: 0; z-index: 10; position: relative;
+}
+.status-time { font-size: 15px; font-weight: 600; color: var(--text); }
+.status-icons { display: flex; gap: 5px; align-items: center; font-size: 14px; }
+.pages { flex: 1; overflow: hidden; position: relative; }
+.page {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  overflow-y: auto; background: var(--bg);
+  opacity: 0; pointer-events: none;
+  transform: translateY(12px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  padding-bottom: 88px;
+  scrollbar-width: none;
+}
+.page::-webkit-scrollbar { display: none; }
+.page.active { opacity: 1; pointer-events: all; transform: translateY(0); }
+.bottom-nav {
+  height: 83px; background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(20px); border-top: 1px solid var(--border);
+  display: flex; align-items: flex-start; padding-top: 10px;
+  flex-shrink: 0; z-index: 100; position: relative;
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 4px; cursor: pointer;
+  padding: 4px; border-radius: 12px;
+  transition: transform 0.15s ease; -webkit-tap-highlight-color: transparent;
+}
+.nav-item:active { transform: scale(0.88); }
+.nav-icon { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; }
+.nav-icon svg { width: 24px; height: 24px; stroke: #AEAEB2; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.2s; }
+.nav-item.active .nav-icon svg { stroke: var(--green); }
+.nav-label { font-size: 10px; font-weight: 500; color: var(--text-tertiary); transition: color 0.2s; }
+.nav-item.active .nav-label { color: var(--green); }
+
+/* Typography */
+h2 { font-size: 24px; font-weight: 700; color: var(--text); letter-spacing: -0.4px; }
+h3 { font-size: 17px; font-weight: 700; color: var(--text); }
+
+/* Utilities */
+.section-header { display: flex; justify-content: space-between; align-items: center; padding: 0 20px; margin-bottom: 14px; }
+.see-all { font-size: 14px; font-weight: 500; color: var(--green); cursor: pointer; }
+.chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 7px 14px; border-radius: 20px; font-size: 13px; font-weight: 500;
+  border: 1.5px solid var(--border); color: var(--text-secondary);
+  background: var(--card); cursor: pointer; white-space: nowrap;
+  transition: all 0.15s ease; flex-shrink: 0;
+}
+.chip.active { background: var(--green); border-color: var(--green); color: white; }
+.chips-row { display: flex; gap: 8px; padding: 0 20px 16px; overflow-x: auto; scrollbar-width: none; }
+.chips-row::-webkit-scrollbar { display: none; }
+.verified-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  background: var(--green-light); color: var(--green-dark);
+  padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;
+}
+.ai-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white; padding: 3px 9px; border-radius: 8px; font-size: 11px; font-weight: 600;
+}
+.card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); }
+.avatar {
+  width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; background: var(--green-light);
+}
+.toggle {
+  width: 44px; height: 26px; background: var(--green);
+  border-radius: 13px; position: relative; cursor: pointer; flex-shrink: 0;
+}
+.toggle::after {
+  content: ''; position: absolute; width: 22px; height: 22px;
+  background: white; border-radius: 50%; top: 2px; right: 2px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2); transition: transform 0.2s;
+}
+.toggle.off { background: var(--border); }
+.toggle.off::after { transform: translateX(-18px); }
+.h-scroll { display: flex; gap: 12px; padding: 0 20px 4px; overflow-x: auto; scrollbar-width: none; }
+.h-scroll::-webkit-scrollbar { display: none; }
+
+/* Food image gradients */
+.grad-green  { background: linear-gradient(135deg,#C8E6C9,#81C784); }
+.grad-salmon { background: linear-gradient(135deg,#FFCCBC,#FF8A65); }
+.grad-purple { background: linear-gradient(135deg,#E1BEE7,#BA68C8); }
+.grad-yellow { background: linear-gradient(135deg,#FFF9C4,#FFEE58); }
+.grad-blue   { background: linear-gradient(135deg,#BBDEFB,#64B5F6); }
+.grad-red    { background: linear-gradient(135deg,#FFCDD2,#E57373); }
+.grad-teal   { background: linear-gradient(135deg,#B2DFDB,#4DB6AC); }
+.grad-orange { background: linear-gradient(135deg,#FFE0B2,#FFB74D); }
+
+/* Food image containers */
+.food-img { width: 100%; height: 180px; display: flex; align-items: center; justify-content: center; font-size: 64px; position: relative; overflow: hidden; }
+.food-img img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+.food-img-sm { width: 66px; height: 66px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 28px; overflow: hidden; position: relative; }
+.food-img-sm img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+  z-index: 200; opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-sheet {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: var(--card); border-radius: 24px 24px 0 0;
+  padding: 16px 20px 40px; transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  max-height: 92%; overflow-y: auto; scrollbar-width: none;
+}
+.modal-sheet::-webkit-scrollbar { display: none; }
+.modal-overlay.open .modal-sheet { transform: translateY(0); }
+.modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
+
+/* ===== TOAST ===== */
+.toast {
+  position: absolute; bottom: 96px; left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: #1C1C1E; color: white;
+  padding: 10px 18px; border-radius: 22px;
+  font-size: 14px; font-weight: 500; white-space: nowrap;
+  opacity: 0; transition: opacity 0.25s, transform 0.25s;
+  z-index: 500; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ===== DISCOVER PAGE ===== */
+.discover-header { padding: 14px 20px 8px; display: flex; justify-content: space-between; align-items: center; }
+.discover-greeting { font-size: 13px; color: var(--text-secondary); margin-bottom: 2px; }
+.search-bar {
+  margin: 0 20px 16px; background: var(--card);
+  border-radius: 12px; height: 44px;
+  display: flex; align-items: center; padding: 0 14px; gap: 10px;
+  box-shadow: var(--shadow); cursor: pointer;
+}
+.search-bar span { font-size: 14px; color: var(--text-tertiary); }
+.personal-card {
+  margin: 0 20px 18px; background: var(--card);
+  border-radius: var(--radius); padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+.personal-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.personal-title h3 { font-size: 16px; }
+.days-spark { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 14px; }
+.day-spark {
+  background: var(--bg); border-radius: 12px; padding: 9px 4px;
+  text-align: center; min-width: 0;
+}
+.day-spark-icon { font-size: 18px; margin-bottom: 4px; }
+.day-spark-label { font-size: 10px; color: var(--text-secondary); font-weight: 600; }
+.day-spark-score { font-size: 12px; color: var(--green-dark); font-weight: 700; margin-top: 2px; }
+.mini-achievements { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+.mini-achievements::-webkit-scrollbar { display: none; }
+.mini-achievement {
+  display: flex; align-items: center; gap: 8px; min-width: 142px;
+  background: var(--green-light); border-radius: 12px; padding: 10px;
+}
+.mini-achievement-icon { font-size: 22px; }
+.mini-achievement-title { font-size: 12px; font-weight: 700; color: var(--green-dark); }
+.mini-achievement-sub { font-size: 11px; color: var(--green-dark); opacity: 0.78; margin-top: 1px; }
+.discover-actions { display: flex; gap: 10px; margin: -10px 20px 22px; }
+.discover-action {
+  flex: 1; background: var(--card); border-radius: 14px; padding: 13px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: var(--shadow); cursor: pointer; color: var(--green-dark);
+  font-size: 14px; font-weight: 700;
+}
+.discover-back { cursor: pointer; font-size: 22px; color: var(--text-secondary); padding: 4px; }
+.featured-recipe {
+  margin: 0 20px 24px; border-radius: 20px; overflow: hidden;
+  position: relative; height: 220px; cursor: pointer;
+  box-shadow: var(--shadow-lg); -webkit-tap-highlight-color: transparent;
+}
+.featured-recipe .food-img { height: 100%; font-size: 84px; }
+.featured-overlay {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.72));
+  padding: 20px 16px 16px; color: white;
+}
+.featured-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; opacity: 0.8; margin-bottom: 4px; }
+.featured-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.featured-meta { display: flex; gap: 14px; font-size: 12px; opacity: 0.88; }
+.featured-badges { position: absolute; top: 12px; right: 12px; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+.h-card { width: 158px; flex-shrink: 0; background: var(--card); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.h-card .food-img { height: 108px; font-size: 44px; }
+.h-card-info { padding: 10px; }
+.h-card-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.h-card-sub { font-size: 11px; color: var(--text-secondary); }
+.recipe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 20px; }
+.recipe-card { background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform 0.15s; }
+.recipe-card:active { transform: scale(0.97); }
+.recipe-card .food-img { height: 124px; font-size: 48px; }
+.recipe-info { padding: 10px 12px 8px; }
+.recipe-title { font-size: 13px; font-weight: 600; color: var(--text); margin: 5px 0 4px; }
+.recipe-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); }
+.recipe-actions { display: flex; gap: 6px; padding: 8px 12px; border-top: 1px solid var(--border); }
+.action-btn { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-secondary); cursor: pointer; padding: 3px 6px; border-radius: 6px; }
+.action-btn.liked { color: var(--red); }
+
+/* ===== SOCIAL PAGE ===== */
+.social-header { padding: 14px 20px 12px; display: flex; justify-content: space-between; align-items: center; }
+.stories-row { display: flex; gap: 12px; padding: 0 20px 16px; overflow-x: auto; scrollbar-width: none; }
+.stories-row::-webkit-scrollbar { display: none; }
+.story { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; cursor: pointer; }
+.story-ring { width: 58px; height: 58px; border-radius: 50%; padding: 2.5px; background: linear-gradient(135deg, var(--green), var(--orange)); }
+.story-avatar { width: 100%; height: 100%; border-radius: 50%; background: var(--card); display: flex; align-items: center; justify-content: center; font-size: 26px; border: 2px solid var(--card); }
+.story-name { font-size: 11px; color: var(--text-secondary); }
+.post { background: var(--card); margin: 0 20px 16px; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.post-header { display: flex; align-items: center; gap: 10px; padding: 12px 14px; }
+.post-username { font-size: 14px; font-weight: 600; color: var(--text); }
+.post-time { font-size: 12px; color: var(--text-tertiary); }
+.post-img { width: 100%; height: 216px; display: flex; align-items: center; justify-content: center; font-size: 72px; }
+.post-actions { display: flex; gap: 16px; padding: 12px 14px 8px; }
+.post-action { display: flex; align-items: center; gap: 5px; font-size: 14px; color: var(--text-secondary); cursor: pointer; }
+.post-caption { padding: 0 14px 14px; font-size: 14px; color: var(--text); line-height: 1.5; }
+.challenge-card {
+  margin: 0 20px 16px;
+  background: linear-gradient(140deg, var(--green-dark), var(--green));
+  border-radius: var(--radius); padding: 18px; color: white; cursor: pointer;
+  box-shadow: 0 6px 24px rgba(74,155,111,0.4);
+}
+.challenge-label { font-size: 11px; opacity: 0.8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 5px; }
+.challenge-title { font-size: 19px; font-weight: 700; margin-bottom: 7px; }
+.challenge-meta { font-size: 13px; opacity: 0.85; }
+.progress-bar { height: 6px; background: rgba(255,255,255,0.25); border-radius: 3px; margin-top: 8px; }
+.progress-fill { height: 100%; border-radius: 3px; background: rgba(255,255,255,0.9); }
+
+/* ===== PLAN PAGE ===== */
+.plan-header { padding: 14px 20px 10px; }
+.week-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+.week-label { font-size: 15px; font-weight: 600; color: var(--text); }
+.week-arrow { width: 32px; height: 32px; border-radius: 50%; background: var(--card); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow); font-size: 17px; color: var(--text-secondary); }
+.days-row { display: flex; gap: 6px; padding: 12px 20px 14px; }
+.day-pill { flex: 1; text-align: center; padding: 8px 2px; border-radius: 12px; cursor: pointer; transition: background 0.18s; }
+.day-pill.active { background: var(--green); }
+.day-pill-name { font-size: 10px; color: var(--text-tertiary); font-weight: 500; margin-bottom: 4px; }
+.day-pill.active .day-pill-name { color: rgba(255,255,255,0.8); }
+.day-pill-num { font-size: 16px; font-weight: 700; color: var(--text); }
+.day-pill.active .day-pill-num { color: white; }
+.day-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--green); margin: 4px auto 0; }
+.day-pill.active .day-dot { background: rgba(255,255,255,0.8); }
+.meal-slot { margin: 0 20px 12px; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.meal-slot-header { display: flex; align-items: center; justify-content: space-between; padding: 11px 16px; border-bottom: 1px solid var(--border); }
+.meal-type-badge { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+.add-meal-btn { font-size: 13px; color: var(--green); font-weight: 600; cursor: pointer; }
+.planned-meal { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.planned-meal-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.planned-meal-meta { font-size: 12px; color: var(--text-secondary); }
+.prepped-badge { background: var(--green-light); color: var(--green-dark); font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+.empty-slot { display: flex; align-items: center; justify-content: center; padding: 18px; color: var(--text-tertiary); font-size: 14px; cursor: pointer; border: 2px dashed var(--border); margin: 12px; border-radius: 12px; gap: 6px; }
+.ai-log-card {
+  margin: 0 20px 14px;
+  background: linear-gradient(135deg,#E8F5EE,#D8F0E3);
+  border: 1.5px solid #BFE2CC;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+.ai-log-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.ai-log-icon {
+  width: 44px; height: 44px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  background: white; color: var(--green-dark); font-size: 22px;
+  box-shadow: 0 2px 10px rgba(45,107,71,0.12);
+}
+.ai-log-title { font-size: 14px; font-weight: 700; color: var(--green-dark); }
+.ai-log-sub { font-size: 12px; color: var(--green-dark); margin-top: 2px; line-height: 1.35; opacity: 0.82; }
+.ai-log-btn {
+  background: var(--green); color: white; border-radius: 12px;
+  padding: 12px 14px; text-align: center; font-size: 14px;
+  font-weight: 700; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(74,155,111,0.32);
+}
+.ai-log-result {
+  display: none; margin-top: 12px; background: rgba(255,255,255,0.78);
+  border-radius: 12px; padding: 12px;
+}
+.ai-log-card.logged .ai-log-result { display: block; }
+.ai-log-meal { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.ai-log-meal-icon { font-size: 28px; }
+.ai-log-meal-name { font-size: 14px; font-weight: 700; color: var(--text); }
+.ai-log-meal-meta { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.ai-log-nutrients { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.ai-log-nutrient { background: var(--bg); border-radius: 10px; padding: 8px 4px; text-align: center; }
+.ai-log-nutrient strong { display: block; font-size: 13px; color: var(--text); }
+.ai-log-nutrient span { font-size: 10px; color: var(--text-secondary); }
+.camera-preview {
+  margin: 0 20px 16px; height: 390px; border-radius: 24px;
+  background: url("Bilder/Salads/q-bowl.jpg") center / cover no-repeat;
+  position: relative; overflow: hidden; box-shadow: var(--shadow-lg);
+  display: flex; align-items: center; justify-content: center;
+}
+.camera-meal { font-size: 104px; filter: drop-shadow(0 18px 28px rgba(0,0,0,0.35)); }
+.camera-frame {
+  position: absolute; inset: 18px 28px 82px; border: 2px solid rgba(255,255,255,0.55);
+  border-radius: 24px; pointer-events: none;
+}
+.camera-hint {
+  position: absolute; top: 16px; left: 16px; right: 16px;
+  display: flex; justify-content: space-between; color: white;
+  font-size: 12px; font-weight: 600; opacity: 0.78;
+}
+.camera-shutter {
+  position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
+  width: 62px; height: 62px; border-radius: 50%; background: white;
+  border: 5px solid rgba(255,255,255,0.35); cursor: pointer;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+}
+.confidence-card {
+  margin: 0 20px 14px; background: var(--card); border-radius: var(--radius);
+  padding: 16px; box-shadow: var(--shadow);
+}
+.confidence-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.confidence-rate { font-size: 28px; font-weight: 800; color: var(--green-dark); }
+.confidence-bar { height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
+.confidence-fill { height: 100%; width: 87%; background: var(--green); border-radius: 8px; }
+.ingredient-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.ingredient-tag { background: var(--green-light); color: var(--green-dark); border-radius: 8px; padding: 5px 9px; font-size: 12px; font-weight: 600; }
+.generate-btn {
+  margin: 14px 20px; background: var(--green); color: white; border-radius: 14px;
+  padding: 16px; text-align: center; font-size: 16px; font-weight: 600; cursor: pointer;
+  box-shadow: 0 4px 18px rgba(74,155,111,0.4); transition: transform 0.15s;
+}
+.generate-btn:active { transform: scale(0.97); }
+
+/* ===== SHOP PAGE ===== */
+.shop-tabs { display: flex; margin: 0 20px 16px; background: var(--border); border-radius: 10px; padding: 3px; }
+.shop-tab { flex: 1; text-align: center; padding: 8px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; }
+.shop-tab.active { background: var(--card); color: var(--text); font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+.shop-sub { display: none; }
+.shop-sub.active { display: block; }
+.have-at-home { background: var(--green-light); margin: 0 20px 16px; border-radius: var(--radius); padding: 14px 16px; }
+.have-header { font-size: 14px; font-weight: 600; color: var(--green-dark); margin-bottom: 10px; }
+.have-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.have-chip { background: white; border-radius: 8px; padding: 4px 10px; font-size: 12px; color: var(--green-dark); font-weight: 500; cursor: pointer; }
+.shopping-group { margin: 0 20px 12px; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.group-header { padding: 10px 16px; background: var(--bg); display: flex; align-items: center; gap: 8px; }
+.group-title { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+.shopping-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; -webkit-tap-highlight-color: transparent; }
+.shopping-item:last-child { border-bottom: none; }
+.shopping-item:active { background: var(--bg); }
+.check-box { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; font-size: 12px; }
+.check-box.checked { background: var(--green); border-color: var(--green); color: white; }
+.item-name { flex: 1; font-size: 14px; color: var(--text); }
+.item-name.checked { text-decoration: line-through; color: var(--text-tertiary); }
+.item-qty { font-size: 13px; color: var(--text-secondary); }
+.inv-summary { margin: 0 20px 16px; background: linear-gradient(135deg, var(--green-dark), var(--green)); border-radius: var(--radius); padding: 18px; color: white; display: flex; justify-content: space-around; align-items: center; }
+.inv-stat { text-align: center; }
+.inv-stat-num { font-size: 26px; font-weight: 800; }
+.inv-stat-label { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+.inv-divider { width: 1px; height: 40px; background: rgba(255,255,255,0.25); }
+.inv-cat { margin: 0 20px 12px; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.inv-cat-header { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; }
+.inv-cat-left { display: flex; align-items: center; gap: 10px; }
+.inv-cat-icon { font-size: 20px; }
+.inv-cat-name { font-size: 15px; font-weight: 600; color: var(--text); }
+.inv-cat-count { font-size: 12px; color: var(--text-secondary); }
+.inv-items-row { padding: 0 16px 14px; display: flex; gap: 6px; flex-wrap: wrap; }
+.inv-chip { display: flex; align-items: center; gap: 4px; background: var(--bg); padding: 4px 10px; border-radius: 8px; font-size: 12px; color: var(--text); }
+.inv-chip.low { background: #FFF3E0; color: #E65100; }
+.low-badge { font-size: 9px; background: #FF9800; color: white; padding: 1px 4px; border-radius: 4px; font-weight: 700; }
+.receipt-banner { margin: 0 20px 16px; background: var(--card); border-radius: var(--radius); padding: 14px 16px; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow); cursor: pointer; }
+
+/* ===== WRAPPED PAGE ===== */
+.wrapped-hero {
+  margin: 0 20px 18px;
+  background: linear-gradient(160deg, #1B4332, #2D6A4F, #40916C);
+  border-radius: 24px; padding: 26px 22px; color: white;
+  text-align: center; box-shadow: 0 8px 32px rgba(27,67,50,0.45);
+}
+.wrapped-week { font-size: 12px; opacity: 0.7; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.wrapped-score { font-size: 78px; font-weight: 800; line-height: 1; letter-spacing: -3px; }
+.wrapped-score-max { font-size: 20px; opacity: 0.55; }
+.wrapped-tagline { font-size: 15px; opacity: 0.85; margin-top: 10px; font-style: italic; }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 20px 18px; }
+.stat-card { background: var(--card); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); text-align: center; }
+.stat-emoji { font-size: 30px; margin-bottom: 8px; }
+.stat-value { font-size: 26px; font-weight: 800; color: var(--text); }
+.stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.streak-card {
+  margin: 0 20px 18px; background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+  border-radius: var(--radius); padding: 18px;
+  display: flex; align-items: center; gap: 16px; color: white;
+  box-shadow: 0 6px 22px rgba(255,107,107,0.35);
+}
+.streak-flame { font-size: 52px; }
+.streak-count { font-size: 34px; font-weight: 800; }
+.streak-label { font-size: 13px; opacity: 0.85; margin-top: 2px; }
+.badges-scroll { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
+.badges-scroll::-webkit-scrollbar { display: none; }
+.badge-item { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; }
+.badge-circle { width: 62px; height: 62px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: var(--shadow); }
+.badge-name { font-size: 11px; color: var(--text-secondary); text-align: center; line-height: 1.3; }
+.insight-item { display: flex; align-items: flex-start; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+.insight-item:last-child { border-bottom: none; }
+.insight-icon { font-size: 20px; margin-top: 1px; flex-shrink: 0; }
+.insight-text { font-size: 14px; color: var(--text); line-height: 1.5; }
+.insight-text strong { color: var(--green-dark); }
+
+/* ===== PROFILE PAGE ===== */
+.profile-hero { display: flex; flex-direction: column; align-items: center; padding: 20px 20px 0; }
+.profile-avatar-lg { width: 84px; height: 84px; border-radius: 50%; background: var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 44px; margin-bottom: 12px; box-shadow: 0 4px 16px rgba(74,155,111,0.25); }
+.profile-name { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.profile-bio { font-size: 14px; color: var(--text-secondary); text-align: center; margin-bottom: 16px; line-height: 1.5; }
+.profile-stats { display: flex; gap: 28px; margin-bottom: 18px; }
+.profile-stat { text-align: center; cursor: pointer; }
+.profile-stat-num { font-size: 20px; font-weight: 700; color: var(--text); }
+.profile-stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.profile-btn { padding: 12px; border-radius: 12px; text-align: center; font-size: 15px; font-weight: 600; cursor: pointer; border: 2px solid var(--border); color: var(--text); background: var(--card); }
+.profile-btn.primary { background: var(--green); border-color: var(--green); color: white; }
+.goals-section { margin: 0 20px 18px; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 16px 8px; }
+.goal-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.goal-item:last-child { border-bottom: none; }
+.goal-label { font-size: 14px; color: var(--text); }
+.goal-value { font-size: 14px; font-weight: 600; color: var(--green-dark); }
+.saved-row { display: flex; gap: 10px; padding: 0 20px; overflow-x: auto; scrollbar-width: none; }
+.saved-row::-webkit-scrollbar { display: none; }
+.saved-thumb { width: 88px; height: 88px; border-radius: 14px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 42px; cursor: pointer; box-shadow: var(--shadow); -webkit-tap-highlight-color: transparent; }
+
+/* ===== RECIPE DETAIL MODAL ===== */
+.detail-img { height: 230px; width: calc(100% + 40px); margin: -16px -20px 0; display: flex; align-items: center; justify-content: center; font-size: 90px; border-radius: 24px 24px 0 0; overflow: hidden; }
+.detail-title { font-size: 22px; font-weight: 700; color: var(--text); margin: 14px 0 8px; letter-spacing: -0.3px; }
+.detail-meta-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; }
+.detail-meta-item { font-size: 13px; color: var(--text-secondary); }
+.nutr-row { display: flex; background: var(--bg); border-radius: 12px; padding: 14px 10px; margin: 12px 0; }
+.nutr-item { flex: 1; text-align: center; }
+.nutr-value { font-size: 17px; font-weight: 700; color: var(--text); }
+.nutr-label { font-size: 10px; color: var(--text-secondary); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.3px; }
+.ing-row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+.ing-row:last-child { border-bottom: none; }
+.ing-have { color: var(--green); font-weight: 500; }
+.ing-need { color: var(--text-tertiary); }
+.cta-row { display: flex; gap: 10px; margin-top: 18px; }
+.cta-btn { flex: 1; padding: 15px; border-radius: 14px; text-align: center; font-size: 15px; font-weight: 600; cursor: pointer; transition: transform 0.15s; -webkit-tap-highlight-color: transparent; }
+.cta-btn:active { transform: scale(0.96); }
+.cta-btn.primary { background: var(--green); color: white; box-shadow: 0 4px 16px rgba(74,155,111,0.4); }
+.cta-btn.secondary { background: var(--bg); color: var(--green-dark); border: 2px solid var(--green-light); }
+
+@keyframes fadeSlideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.anim { animation: fadeSlideIn 0.3s ease both; }
+</style>
+</head>
+<body>
+
+<div class="page-title">NOURI · Healthy Eating App · Interactive Prototype</div>
+
+<div class="phone">
+  <div class="notch"></div>
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <span>5G</span>
+      <span>⌃</span>
+    </div>
+  </div>
+
+  <div class="pages">
+
+    <!-- ========== DISCOVER ========== -->
+    <div id="page-discover" class="page active">
+      <div class="discover-header">
+        <div>
+          <div class="discover-greeting">Good morning, Sarah </div>
+          <h2>What's for lunch?</h2>
+        </div>
+        <div class="avatar" style="width:44px;height:44px;border-radius:50%;overflow:hidden;" onclick="navigateTo('me')">
+          <img src="Bilder/Profilepic/8442c89cbfe6a9808982c161b8fd891f.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+        </div>
+      </div>
+
+      <div class="search-bar" onclick="showToast('Search opened...')">
+        <span style="font-size:16px;">🔍</span>
+        <span>Search 2,400+ verified recipes...</span>
+      </div>
+
+      <div class="personal-card">
+        <div class="personal-title">
+          <h3>Your last 5 days</h3>
+          <span class="see-all" onclick="navigateTo('wrapped')">Details</span>
+        </div>
+        <div class="days-spark">
+          <div class="day-spark"><div class="day-spark-icon"></div><div class="day-spark-label">Sun</div><div class="day-spark-score">78</div></div>
+          <div class="day-spark"><div class="day-spark-icon"></div><div class="day-spark-label">Mon</div><div class="day-spark-score">81</div></div>
+          <div class="day-spark"><div class="day-spark-icon"></div><div class="day-spark-label">Tue</div><div class="day-spark-score">86</div></div>
+          <div class="day-spark"><div class="day-spark-icon"></div><div class="day-spark-label">Wed</div><div class="day-spark-score">83</div></div>
+          <div class="day-spark"><div class="day-spark-icon"></div><div class="day-spark-label">Thu</div><div class="day-spark-score">88</div></div>
+        </div>
+        <div class="mini-achievements">
+          <div class="mini-achievement"><div class="mini-achievement-icon"></div><div><div class="mini-achievement-title">8-day streak</div><div class="mini-achievement-sub">Personal best nearby</div></div></div>
+          <div class="mini-achievement"><div class="mini-achievement-icon"></div><div><div class="mini-achievement-title">Veggie goal</div><div class="mini-achievement-sub">5 portions daily</div></div></div>
+          <div class="mini-achievement"><div class="mini-achievement-icon"></div><div><div class="mini-achievement-title">Top 3</div><div class="mini-achievement-sub">Friends progress</div></div></div>
+        </div>
+      </div>
+
+      <!-- Challenge moved from Social -->
+      <div class="challenge-card">
+        <div class="challenge-label">Weekly Challenge</div>
+        <div class="challenge-title">7 Days of Plant-Based</div>
+        <div class="challenge-meta">342 friends participating · Ends Sunday</div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;opacity:0.85;margin-top:12px;margin-bottom:6px;">
+          <span>Day 4 of 7</span><span>57% complete</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:57%"></div></div>
+      </div>
+
+      <!-- Featured -->
+      <div class="featured-recipe" onclick="openRecipe()">
+        <img id="featured-img" src="Bilder/dinner/5.jpg" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;transition:opacity 0.3s ease;">
+        <div class="featured-overlay">
+          <div id="featured-label" class="featured-label">Recommended meal</div>
+          <div id="featured-title" class="featured-title">Chimichurri steak rice bowl</div>
+          <div id="featured-meta" class="featured-meta">
+            <span>20 min</span><span>440 kcal</span><span>3.2k saves</span>
+          </div>
+        </div>
+        <div class="featured-badges">
+          <div class="verified-badge">Health Verified</div>
+          <div class="ai-chip" style="margin-top:4px;">✦ AI Pick</div>
+        </div>
+      </div>
+
+      <div class="discover-actions">
+        <div class="discover-action" onclick="navigateTo('discover-recipes')">
+          <span>Show all recipes</span><span>›</span>
+        </div>
+      </div>
+
+      <!-- Trending -->
+      <div class="section-header"><h3>Trending this week</h3><span class="see-all" onclick="navigateTo('discover-recipes')">See all</span></div>
+      <div class="h-scroll">
+        <div class="h-card" onclick="openRecipe()">
+          <div style="height:108px;overflow:hidden;border-radius:12px 12px 0 0;"><img src="Bilder/Fish/17199c736fa9db346ef6f02394508516.jpg" style="width:100%;height:100%;object-fit:cover;"></div>
+          <div class="h-card-info">
+            <div class="h-card-title">Crispy Chicken Caesar</div>
+            <div class="h-card-sub">25 min · 460 kcal</div>
+          </div>
+        </div>
+        <div class="h-card" onclick="openRecipe()">
+          <div style="height:108px;overflow:hidden;border-radius:12px 12px 0 0;"><img src="Bilder/Fish/20aa2b1b366d0c6811458c72a08403bc.jpg" style="width:100%;height:100%;object-fit:cover;"></div>
+          <div class="h-card-info">
+            <div class="h-card-title">Salmon Power Bowl</div>
+            <div class="h-card-sub">25 min · 520 kcal</div>
+          </div>
+        </div>
+        <div class="h-card" onclick="openRecipe()">
+          <div style="height:108px;overflow:hidden;border-radius:12px 12px 0 0;"><img src="Bilder/Breakfast/ebe2611796f477c93f94dd14f485103a.jpg" style="width:100%;height:100%;object-fit:cover;"></div>
+          <div class="h-card-info">
+            <div class="h-card-title">Berry Smoothie Bowl</div>
+            <div class="h-card-sub">10 min · 320 kcal</div>
+          </div>
+        </div>
+        <div class="h-card" onclick="openRecipe()">
+          <div style="height:108px;overflow:hidden;border-radius:12px 12px 0 0;"><img src="Bilder/Salads/f1f1f6055075c0fe268455ba7f958b36.jpg" style="width:100%;height:100%;object-fit:cover;"></div>
+          <div class="h-card-info">
+            <div class="h-card-title">Chickpea & Avocado Salad</div>
+            <div class="h-card-sub">10 min · 380 kcal</div>
+          </div>
+        </div>
+        <div class="h-card" onclick="openRecipe()">
+          <div style="height:108px;overflow:hidden;border-radius:12px 12px 0 0;"><img src="Bilder/Snacks/5e2e8817da589c3cfd04cfe66690ec36.jpg" style="width:100%;height:100%;object-fit:cover;"></div>
+          <div class="h-card-info">
+            <div class="h-card-title">Avocado Toast</div>
+            <div class="h-card-sub">8 min · 290 kcal</div>
+          </div>
+        </div>
+      </div>
+
+      <br>
+    </div>
+
+    <!-- ========== DISCOVER / ALL RECIPES ========== -->
+    <div id="page-discover-recipes" class="page">
+      <div style="padding:14px 20px 8px;display:flex;align-items:center;gap:10px;">
+        <div class="discover-back" onclick="navigateTo('discover')">←</div>
+        <div>
+          <div class="discover-greeting">Discovery</div>
+          <h2>All recipes</h2>
+        </div>
+      </div>
+
+      <div class="search-bar" onclick="showToast('Search opened...')">
+        <span style="font-size:16px;">🔍</span>
+        <span>Search recipes, meals, ingredients...</span>
+      </div>
+
+      <div class="chips-row" id="filter-chips">
+        <div class="chip active" onclick="setChip(this)">All</div>
+        <div class="chip" onclick="setChip(this)">Breakfast</div>
+        <div class="chip" onclick="setChip(this)">Lunch</div>
+        <div class="chip" onclick="setChip(this)">Dinner</div>
+        <div class="chip" onclick="setChip(this)">High Protein</div>
+        <div class="chip" onclick="setChip(this)">Vegetarian</div>
+        <div class="chip" onclick="setChip(this)">Quick</div>
+        <div class="chip" onclick="setChip(this)">Budget</div>
+      </div>
+
+      <div class="section-header">
+        <h3 id="grid-title">Made for you ✦</h3>
+        <span class="see-all" onclick="showToast('All recipes shown')">See all</span>
+      </div>
+      <div id="recipe-grid" class="recipe-grid"></div>
+      <br>
+    </div>
+
+    <!-- ========== SOCIAL ========== -->
+    <div id="page-social" class="page">
+      <div class="social-header">
+        <h2>Community</h2>
+        <div style="display:flex;gap:16px;align-items:center;">
+          <svg onclick="showToast('Messages opened')" style="cursor:pointer;width:22px;height:22px;stroke:#1C1C1E;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <svg onclick="showToast('Share options')" style="cursor:pointer;width:22px;height:22px;stroke:#1C1C1E;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </div>
+      </div>
+
+      <!-- Stories -->
+      <div class="stories-row">
+
+        <!-- 1 -->
+        <div class="story">
+          <div class="story-ring" style="background:linear-gradient(135deg,#C8E6C9,#81C784)">
+            <div class="story-avatar" style="overflow:hidden;">
+              <img src="Bilder/Profilepic/T1.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+            </div>
+          </div>
+          <div class="story-name">Emma</div>
+        </div>
+
+        <!-- 2 -->
+        <div class="story">
+          <div class="story-ring" style="background:linear-gradient(135deg,#C8E6C9,#81C784)">
+            <div class="story-avatar" style="overflow:hidden;">
+              <img src="Bilder/Profilepic/T2.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+            </div>
+          </div>
+          <div class="story-name">Elin</div>
+        </div>
+        
+        <!-- 3 -->
+        <div class="story">
+          <div class="story-ring" style="background:linear-gradient(135deg,#C8E6C9,#81C784)">
+            <div class="story-avatar" style="overflow:hidden;">
+              <img src="Bilder/Profilepic/Picadeli.jpeg" style="width:100%;height:100%;object-fit:cover;display:block;">
+            </div>
+          </div>
+          <div class="story-name">Picadeli</div>
+        </div>
+        
+        <!-- 4 -->
+        <div class="story">
+          <div class="story-ring" style="background:linear-gradient(135deg,#C8E6C9,#81C784)">
+            <div class="story-avatar" style="overflow:hidden;">
+              <img src="Bilder/Profilepic/K2.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+            </div>
+          </div>
+          <div class="story-name">Marcus</div>
+        </div>
+
+        <!-- 5 -->
+        <div class="story">
+          <div class="story-ring" style="background:linear-gradient(135deg,#C8E6C9,#81C784)">
+            <div class="story-avatar" style="overflow:hidden;">
+              <img src="Bilder/Profilepic/Ica.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+            </div>
+          </div>
+          <div class="story-name">ICA</div>
+        </div>
+
+        <!-- 6 -->
+        <div class="story">
+          <div class="story-ring" style="background:linear-gradient(135deg,#C8E6C9,#81C784)">
+            <div class="story-avatar" style="overflow:hidden;">
+              <img src="Bilder/Profilepic/T3.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+            </div>
+          </div>
+          <div class="story-name">Stella</div>
+        </div>
+
+        
+      </div>
+
+      <!-- Post 1 -->
+      <div class="post">
+        <div class="post-header">
+          <div class="avatar" style="overflow:hidden;">
+            <img src="Bilder/Profilepic/T3.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+          </div>
+          <div style="flex:1;">
+            <div class="post-username">Emma Lindström <span style="color:var(--green);font-size:12px;">✓ Creator</span></div>
+            <div class="post-time">2 hours ago</div>
+          </div>
+          <div class="verified-badge">Health Verified</div>
+        </div>
+        <div class="post-img grad-green" style="overflow:hidden;">
+          <img src="Bilder/Influencer/4db4bc9bcca9c462c6b1073b866d1528.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+        </div>
+        
+        <div class="post-actions">
+          <div class="post-action" onclick="showToast('Liked!')">♥ <span>1,204</span></div>
+          <div class="post-action" onclick="showToast('Comments opened')">Comment <span>48</span></div>
+          <div class="post-action" onclick="showToast('Saved!')">Save</div>
+          <div class="post-action" style="margin-left:auto;" onclick="showToast('Shared!')">Share</div>
+        </div>
+        <div class="post-caption"><strong>Mango Chickpea Salad</strong> — my go-to summer lunch! Takes 12 minutes and uses ingredients you probably already have. Full recipe in my profile! 🌿✨ <span style="color:var(--green)">#HealthyEating #PlantBased</span></div>
+      </div>
+
+      <!-- Post 2 -->
+      <div class="post">
+        <div class="post-header">
+          <div class="avatar" style="overflow:hidden;">
+            <img src="Bilder/Profilepic/K2.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+          </div>
+          <div style="flex:1;">
+            <div class="post-username">Marcus A.</div>
+            <div class="post-time">5 hours ago</div>
+          </div>
+          <div class="verified-badge">Health Verified</div>
+        </div>
+        <div class="post-img grad-green" style="overflow:hidden;">
+          <img src="Bilder/Influencer/b781b8f7acd3c8eec9f79fad78ff536d.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+        </div>
+        <div class="post-actions">
+          <div class="post-action" onclick="showToast('Liked!')">♥ <span>342</span></div>
+          <div class="post-action" onclick="showToast('Comments opened')">Comment <span>12</span></div>
+          <div class="post-action" onclick="showToast('Saved!')">Save</div>
+        </div>
+        <div class="post-caption">Perfect protin shake! Thanks to <strong>@Nouri</strong>'s batch cooking feature. Test this out this summer! <span style="color:var(--green)">#MealPrep</span></div>
+      </div>
+
+      <!-- Post 3 -->
+      <div class="post">
+        <div class="post-header">
+          <div class="avatar" style="overflow:hidden;">
+            <img src="Bilder/Profilepic/Mom1.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+          </div>
+          <div style="flex:1;">
+            <div class="post-username">Sofia B.</div>
+            <div class="post-time">8 hours ago</div>
+          </div>
+          <div class="verified-badge">Health Verified</div>
+        </div>
+        <div class="post-img grad-green" style="overflow:hidden;">
+          <img src="Bilder/Influencer/13ce3d8ff10468a22a552f526c628290.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+        </div>
+        <div class="post-actions">
+          <div class="post-action" onclick="showToast('Liked!')">♥ <span>342</span></div>
+          <div class="post-action" onclick="showToast('Comments opened')">Comment <span>12</span></div>
+          <div class="post-action" onclick="showToast('Saved!')">Save</div>
+        </div>
+        <div class="post-caption">How to balance the sunday morning! Thanks to <strong>@Nouri</strong>. <span style="color:var(--green)">#MealPrep</span></div>
+      </div>
+
+      <!-- Friends leaderboard teaser -->
+      <div style="margin:0 20px 20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h3>Friends' Progress</h3>
+          <span class="see-all" onclick="navigateTo('wrapped')">See full →</span>
+        </div>
+        <div class="card" style="overflow:hidden;padding:0;">
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border);">
+            <div class="avatar" style="overflow:hidden;">
+            <img src="Bilder/Profilepic/T2.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+          </div>
+            <div style="flex:1;"><div style="font-size:14px;font-weight:600;">Lina Hansen</div><div style="font-size:12px;color:var(--text-secondary);">🔥 12-day streak · Score 87</div></div>
+            <div style="font-size:13px;color:var(--green);font-weight:600;">+14 pts</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border);">
+            <div class="avatar" style="overflow:hidden;">
+            <img src="Bilder/Profilepic/K2.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+          </div>
+            <div style="flex:1;"><div style="font-size:14px;font-weight:600;">Chef Erik</div><div style="font-size:12px;color:var(--text-secondary);">🔥 28-day streak · Score 94</div></div>
+            <div style="font-size:13px;color:var(--green);font-weight:600;">+8 pts</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;">
+            <div class="avatar" style="overflow:hidden;">
+            <img src="Bilder/Profilepic/T3.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+          </div>
+            <div style="flex:1;"><div style="font-size:14px;font-weight:600;">Matilda Landström.</div><div style="font-size:12px;color:var(--text-secondary);">🔥 5-day streak · Score 71</div></div>
+            <div style="font-size:13px;color:var(--green);font-weight:600;">+3 pts</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== MEAL PLAN ========== -->
+    <div id="page-plan" class="page">
+      <div class="plan-header">
+        <h2>Meal Plan</h2>
+        <div class="week-nav">
+          <div class="week-arrow">‹</div>
+          <div class="week-label">Apr 21 – Apr 27, 2026</div>
+          <div class="week-arrow">›</div>
+        </div>
+      </div>
+
+      <div class="days-row" id="days-row">
+        <div class="day-pill" onclick="setDay(this)"><div class="day-pill-name">Mon</div><div class="day-pill-num">21</div><div class="day-dot"></div></div>
+        <div class="day-pill" onclick="setDay(this)"><div class="day-pill-name">Tue</div><div class="day-pill-num">22</div><div class="day-dot"></div></div>
+        <div class="day-pill active" onclick="setDay(this)"><div class="day-pill-name">Wed</div><div class="day-pill-num">23</div><div class="day-dot"></div></div>
+        <div class="day-pill" onclick="setDay(this)"><div class="day-pill-name">Thu</div><div class="day-pill-num">24</div></div>
+        <div class="day-pill" onclick="setDay(this)"><div class="day-pill-name">Fri</div><div class="day-pill-num">25</div></div>
+        <div class="day-pill" onclick="setDay(this)"><div class="day-pill-name">Sat</div><div class="day-pill-num">26</div></div>
+        <div class="day-pill" onclick="setDay(this)"><div class="day-pill-name">Sun</div><div class="day-pill-num">27</div></div>
+      </div>
+
+      <!-- Daily nutrition summary -->
+      <div style="margin:0 20px 14px;background:var(--card);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="font-size:14px;font-weight:600;">Wednesday · Daily Total</div>
+          <div class="verified-badge">Balanced ✓</div>
+        </div>
+        <div style="display:flex;">
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:700;">1,240</div><div style="font-size:11px;color:var(--text-secondary);">kcal</div></div>
+          <div style="width:1px;background:var(--border);"></div>
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:700;color:var(--green-dark);">86g</div><div style="font-size:11px;color:var(--text-secondary);">protein</div></div>
+          <div style="width:1px;background:var(--border);"></div>
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:700;color:var(--orange);">42g</div><div style="font-size:11px;color:var(--text-secondary);">fiber</div></div>
+          <div style="width:1px;background:var(--border);"></div>
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:700;color:var(--blue);">2.1L</div><div style="font-size:11px;color:var(--text-secondary);">water</div></div>
+        </div>
+      </div>
+
+      <!-- AI food logging -->
+      <div class="ai-log-card" id="ai-log-card">
+        <div class="ai-log-top">
+          <div class="ai-log-icon" style="overflow:hidden;">
+            <img src="Bilder/symbol/camera.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+          </div>
+          <div style="flex:1;">
+            <div class="ai-log-title">AI food logging</div>
+            <div class="ai-log-sub">Take a photo and Nouri estimates the meal, ingredients, calories and macros.</div>
+          </div>
+        </div>
+        <div class="ai-log-btn" onclick="navigateTo('ai-log')">Open camera logger</div>
+      </div>
+
+      <!-- Breakfast -->
+      <div class="meal-slot">
+        <div class="meal-slot-header">
+          <div class="meal-type-badge">Breakfast</div>
+          <div class="prepped-badge">Prepped ✓</div>
+        </div>
+        <div class="planned-meal" onclick="openRecipe()">
+          <div class="food-img-sm grad-teal" style="overflow:hidden;">
+            <img src="Bilder/Breakfast/overnightoats.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+          </div>
+          <div style="flex:1;">
+            <div class="planned-meal-name">Overnight Oats with Berries</div>
+            <div class="planned-meal-meta">320 kcal · 12g protein · 5 min</div>
+          </div>
+          <span style="color:var(--text-tertiary);font-size:18px;">›</span>
+        </div>
+      </div>
+
+      <!-- Lunch -->
+      <div class="meal-slot">
+        <div class="meal-slot-header">
+          <div class="meal-type-badge">Lunch</div>
+          <div class="add-meal-btn" onclick="showToast('Recipe picker opened')">+ Change</div>
+        </div>
+        <div class="planned-meal" onclick="openRecipe()">
+          <div class="food-img-sm grad-teal" style="overflow:hidden;">
+            <img src="Bilder/Salads/efca9703789104d975713b108611a233.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+          </div>
+          <div style="flex:1;">
+            <div class="planned-meal-name">Sweet potato protein bowl</div>
+            <div class="planned-meal-meta">420 kcal · 22g protein · 12 min</div>
+          </div>
+          <span style="color:var(--text-tertiary);font-size:18px;">›</span>
+        </div>
+      </div>
+
+      <!-- Dinner - empty -->
+      <div class="meal-slot">
+        <div class="meal-slot-header">
+          <div class="meal-type-badge">Dinner</div>
+          <div class="add-meal-btn" onclick="showToast('Recipe picker opened')">+ Add meal</div>
+        </div>
+        <div class="empty-slot" onclick="showToast('Recipe picker opened')"><span style="font-size:20px;color:var(--green);">+</span> Tap to add dinner</div>
+      </div>
+
+      <!-- Snack -->
+      <div class="meal-slot">
+        <div class="meal-slot-header">
+          <div class="meal-type-badge">Snack</div>
+          <div class="add-meal-btn" onclick="showToast('Snack picker opened')">+ Change</div>
+        </div>
+        <div class="planned-meal" onclick="openRecipe()">
+          <div class="food-img-sm grad-teal" style="overflow:hidden;">
+            <img src="Bilder/Snacks/greak.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+          </div>
+          <div style="flex:1;">
+            <div class="planned-meal-name">Greek Yogurt & Berries</div>
+            <div class="planned-meal-meta">180 kcal · 15g protein · 2 min</div>
+          </div>
+          <span style="color:var(--text-tertiary);font-size:18px;">›</span>
+        </div>
+      </div>
+
+      <!-- AI dinner suggestion -->
+      <div style="margin:12px 20px;background:linear-gradient(135deg,#EDE7F6,#D1C4E9);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="showToast('Opening AI suggestions...')">
+        <div style="font-size:24px;">✦</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:600;color:#4527A0;">Nouri suggests for dinner</div>
+          <div style="font-size:13px;color:#7B1FA2;margin-top:2px;">Based on what's in your fridge · High protein</div>
+        </div>
+        <span style="color:#7B1FA2;font-size:18px;">›</span>
+      </div>
+
+      <div class="generate-btn" onclick="navigateTo('shop');showToast('Shopping list generated!')">
+        Generate Shopping List
+      </div>
+    </div>
+
+    <!-- ========== AI PHOTO LOGGING ========== -->
+    <div id="page-ai-log" class="page">
+      <div style="padding:14px 20px 8px;display:flex;align-items:center;gap:10px;">
+        <div class="discover-back" onclick="navigateTo('plan')">←</div>
+        <div>
+          <div class="discover-greeting">Plan · AI logging</div>
+          <h2>Photo meal log</h2>
+        </div>
+      </div>
+
+      <div class="camera-preview">
+        <div class="camera-frame"></div>
+        <div class="camera-meal"></div>
+        <div class="camera-shutter" onclick="analyzeAIPhoto()"></div>
+      </div>
+
+      <div class="confidence-card">
+        <div class="confidence-top">
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);">Estimated meal</div>
+            <div style="font-size:13px;color:var(--text-secondary);margin-top:2px;">Chicken quinoa bowl</div>
+          </div>
+          <div class="confidence-rate">87%</div>
+        </div>
+        <div class="confidence-bar"><div class="confidence-fill"></div></div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-top:8px;">Confidence rate based on visible ingredients and portion estimate.</div>
+        <div class="ingredient-tags">
+          <div class="ingredient-tag">Chicken</div>
+          <div class="ingredient-tag">Quinoa</div>
+          <div class="ingredient-tag">Avocado</div>
+          <div class="ingredient-tag">Tomato</div>
+          <div class="ingredient-tag">Feta</div>
+          <div class="ingredient-tag">Greens</div>
+        </div>
+      </div>
+
+      <div class="ai-log-card" style="background:var(--card);border-color:var(--border);">
+        <div class="ai-log-meal">
+          <div class="ai-log-meal-icon">🥙</div>
+          <div style="flex:1;">
+            <div class="ai-log-meal-name">Nutrition estimate</div>
+            <div class="ai-log-meal-meta">Estimated from photo · edit before saving if needed</div>
+          </div>
+        </div>
+        <div class="ai-log-nutrients">
+          <div class="ai-log-nutrient"><strong>520</strong><span>kcal</span></div>
+          <div class="ai-log-nutrient"><strong>38g</strong><span>protein</span></div>
+          <div class="ai-log-nutrient"><strong>46g</strong><span>carbs</span></div>
+          <div class="ai-log-nutrient"><strong>21g</strong><span>fat</span></div>
+        </div>
+      </div>
+
+      <div class="cta-row" style="margin:0 20px 24px;">
+        <div class="cta-btn secondary" onclick="showToast('Retaking photo...')">Retake</div>
+        <div class="cta-btn primary" onclick="showToast('Meal logged to Wednesday');navigateTo('plan')">Save log</div>
+      </div>
+    </div>
+
+    <!-- ========== KITCHEN / SHOP ========== -->
+    <div id="page-shop" class="page">
+      <div style="padding:14px 20px 12px;display:flex;justify-content:space-between;align-items:center;">
+        <h2>Kitchen</h2>
+        <div class="ai-chip" style="cursor:pointer;" onclick="showToast('✦ AI inventory updated')">✦ AI Synced</div>
+      </div>
+
+      <div class="shop-tabs">
+        <div class="shop-tab active" id="tab-list" onclick="switchTab('list')">Shopping List</div>
+        <div class="shop-tab" id="tab-inv" onclick="switchTab('inv')">Inventory</div>
+      </div>
+
+      <!-- SHOPPING LIST -->
+      <div id="sub-list" class="shop-sub active">
+        <div class="have-at-home">
+          <div class="have-header">Already at home — 8 items</div>
+          <div class="have-chips">
+            <div class="have-chip"> Onion</div>
+            <div class="have-chip"> Garlic</div>
+            <div class="have-chip"> Olive oil</div>
+            <div class="have-chip"> Salt & spices</div>
+            <div class="have-chip"> Cumin</div>
+            <div class="have-chip"> Lemon</div>
+            <div class="have-chip"> Chickpeas</div>
+            <div class="have-chip"> Feta</div>
+          </div>
+        </div>
+
+        <div style="padding:0 20px 8px;">
+          <div style="font-size:14px;font-weight:600;color:var(--text);">Need to buy — 6 items</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">For this week's meal plan</div>
+        </div>
+
+        <div class="shopping-group">
+          <div class="group-header"><span class="group-title">Produce</span></div>
+          <div class="shopping-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div><div class="item-name">Cherry tomatoes</div><div class="item-qty">250g</div>
+          </div>
+          <div class="shopping-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div><div class="item-name">Baby spinach</div><div class="item-qty">1 bag</div>
+          </div>
+          <div class="shopping-item" onclick="toggleCheck(this)">
+            <div class="check-box checked">✓</div><div class="item-name checked">Cucumber</div><div class="item-qty" style="color:var(--text-tertiary)">1 pcs</div>
+          </div>
+        </div>
+
+        <div class="shopping-group">
+          <div class="group-header"><span class="group-title">Grains & Pantry</span></div>
+          <div class="shopping-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div><div class="item-name">Quinoa</div><div class="item-qty">400g</div>
+          </div>
+          <div class="shopping-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div><div class="item-name">Rolled oats</div><div class="item-qty">1kg</div>
+          </div>
+        </div>
+
+        <div class="shopping-group">
+          <div class="group-header"><span class="group-title">Dairy & Protein</span></div>
+          <div class="shopping-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div><div class="item-name">Greek yogurt</div><div class="item-qty">500g</div>
+          </div>
+        </div>
+
+        <div style="margin:0 20px 14px;display:flex;align-items:center;gap:10px;background:var(--card);border-radius:12px;padding:12px 16px;box-shadow:var(--shadow);cursor:pointer;" onclick="showToast('Add item...')">
+          <span style="font-size:20px;color:var(--green);">+</span>
+          <span style="font-size:14px;color:var(--text-secondary);">Add item manually...</span>
+        </div>
+
+        <div style="margin:0 20px 16px;background:var(--card);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;">
+          <span style="font-size:26px;"></span>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;">Shared with household</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">2 people can edit this list</div>
+          </div>
+          <div class="toggle"></div>
+        </div>
+      </div>
+
+      <!-- INVENTORY -->
+      <div id="sub-inv" class="shop-sub">
+        <div class="inv-summary">
+          <div class="inv-stat"><div class="inv-stat-num">34</div><div class="inv-stat-label">Items tracked</div></div>
+          <div class="inv-divider"></div>
+          <div class="inv-stat"><div class="inv-stat-num">3</div><div class="inv-stat-label">Running low</div></div>
+          <div class="inv-divider"></div>
+          <div class="inv-stat"><div class="inv-stat-num">12</div><div class="inv-stat-label">Recipes possible</div></div>
+        </div>
+
+        <div class="receipt-banner" onclick="showToast('Receipt details opened')">
+          <div style="font-size:28px;">🧾</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;">ICA purchase detected</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Apr 22 · 14 items added automatically</div>
+          </div>
+          <span style="color:var(--text-tertiary);font-size:18px;">›</span>
+        </div>
+
+        <div class="inv-cat">
+          <div class="inv-cat-header">
+            <div class="inv-cat-left">
+              <div class="inv-cat-icon"></div>
+              <div><div class="inv-cat-name">Vegetables</div><div class="inv-cat-count">8 items</div></div>
+            </div>
+            <span style="color:var(--text-tertiary);font-size:18px;">›</span>
+          </div>
+          <div class="inv-items-row">
+            <div class="inv-chip"> Onion ×3</div>
+            <div class="inv-chip"> Carrots ×4</div>
+            <div class="inv-chip low"> Tomatoes ×1 <span class="low-badge">LOW</span></div>
+            <div class="inv-chip"> Cucumber ×2</div>
+            <div class="inv-chip"> Garlic</div>
+          </div>
+        </div>
+
+        <div class="inv-cat">
+          <div class="inv-cat-header">
+            <div class="inv-cat-left">
+              <div class="inv-cat-icon"></div>
+              <div><div class="inv-cat-name">Proteins</div><div class="inv-cat-count">5 items</div></div>
+            </div>
+            <span style="color:var(--text-tertiary);font-size:18px;">›</span>
+          </div>
+          <div class="inv-items-row">
+            <div class="inv-chip"> Eggs ×6</div>
+            <div class="inv-chip low"> Chicken breast <span class="low-badge">LOW</span></div>
+            <div class="inv-chip"> Chickpeas ×2</div>
+            <div class="inv-chip"> Salmon ×1</div>
+          </div>
+        </div>
+
+        <div class="inv-cat">
+          <div class="inv-cat-header">
+            <div class="inv-cat-left">
+              <div class="inv-cat-icon"></div>
+              <div><div class="inv-cat-name">Dairy</div><div class="inv-cat-count">4 items</div></div>
+            </div>
+            <span style="color:var(--text-tertiary);font-size:18px;">›</span>
+          </div>
+          <div class="inv-items-row">
+            <div class="inv-chip"> Feta ×1</div>
+            <div class="inv-chip"> Milk 1L</div>
+            <div class="inv-chip low"> Butter <span class="low-badge">LOW</span></div>
+            <div class="inv-chip"> Greek yogurt</div>
+          </div>
+        </div>
+
+        <div class="inv-cat">
+          <div class="inv-cat-header">
+            <div class="inv-cat-left">
+              <div class="inv-cat-icon"></div>
+              <div><div class="inv-cat-name">Grains & Pantry</div><div class="inv-cat-count">11 items</div></div>
+            </div>
+            <span style="color:var(--text-tertiary);font-size:18px;">›</span>
+          </div>
+          <div class="inv-items-row">
+            <div class="inv-chip"> Quinoa 300g</div>
+            <div class="inv-chip"> Oats 500g</div>
+            <div class="inv-chip"> Olive oil</div>
+            <div class="inv-chip"> Lemon ×3</div>
+            <div class="inv-chip"> Spices</div>
+          </div>
+        </div>
+
+        <!-- Cook from inventory -->
+        <div style="margin:0 20px 20px;background:linear-gradient(135deg,#E8F5EE,#D0EDD9);border-radius:var(--radius);padding:16px;">
+          <div style="font-size:14px;font-weight:600;color:var(--green-dark);margin-bottom:8px;">✦ Cook with what you have</div>
+          <div style="font-size:13px;color:var(--green-dark);margin-bottom:10px;">12 recipes match your current inventory</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <div class="have-chip" onclick="openRecipe()"> Quinoa Bowl</div>
+            <div class="have-chip" onclick="openRecipe()"> Veggie Frittata</div>
+            <div class="have-chip" onclick="openRecipe()"> Chickpea Curry</div>
+            <div class="have-chip" onclick="showToast('Showing all 12 recipes')">+9 more</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== ME / PROFILE ========== -->
+    <div id="page-me" class="page">
+      <div class="profile-hero">
+        <div class="profile-avatar-lg" style="overflow:hidden;">
+          <img src="Bilder/Profilepic/8442c89cbfe6a9808982c161b8fd891f.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+        </div>
+        <div class="profile-name">Sarah Johansson</div>
+        <div class="profile-bio">Eating better, one meal at a time 🌿<br>Stockholm · Joined Jan 2024</div>
+        <div class="profile-stats">
+          <div class="profile-stat"><div class="profile-stat-num">247</div><div class="profile-stat-label">Recipes saved</div></div>
+          <div class="profile-stat"><div class="profile-stat-num">1.2k</div><div class="profile-stat-label">Followers</div></div>
+          <div class="profile-stat"><div class="profile-stat-num">89</div><div class="profile-stat-label">Following</div></div>
+        </div>
+        <div style="width:100%;display:flex;gap:8px;padding:0 0 16px;">
+          <div class="profile-btn primary" style="flex:2;" onclick="showToast('Editing profile...')">Edit Profile</div>
+          <div class="profile-btn" style="flex:1;" onclick="showToast('Profile link copied!')">Share ↗</div>
+        </div>
+      </div>
+
+      <!-- Weekly progress preview -->
+      <div style="margin:0 20px 18px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h3>This Week's Progress</h3>
+          <span class="see-all" onclick="navigateTo('wrapped')">Full report →</span>
+        </div>
+        <div class="wrapped-hero" style="text-align:left;padding:20px;" onclick="navigateTo('wrapped')">
+          <div class="wrapped-week">Week of Apr 21</div>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div>
+              <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">Health Score</div>
+              <div style="font-size:54px;font-weight:800;line-height:1;">84</div>
+              <div style="font-size:13px;opacity:0.7;margin-top:4px;">+6 from last week ↑</div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:9px;">
+              <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="opacity:0.8;">Streak</span><strong>8 days</strong></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="opacity:0.8;">Meals logged</span><strong>14/21</strong></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="opacity:0.8;">Challenges</span><strong>2 active</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Goals -->
+      <div class="goals-section">
+        <h3 style="margin-bottom:10px;">My Goals & Preferences</h3>
+        <div class="goal-item"><div class="goal-label"> Primary goal</div><div class="goal-value">Eat balanced</div></div>
+        <div class="goal-item"><div class="goal-label"> Protein target</div><div class="goal-value">80g / day</div></div>
+        <div class="goal-item"><div class="goal-label"> Diet preference</div><div class="goal-value">Flexitarian</div></div>
+        <div class="goal-item"><div class="goal-label"> Household size</div><div class="goal-value">2 people</div></div>
+        <div class="goal-item"><div class="goal-label"> Meal reminders</div><div class="toggle"></div></div>
+      </div>
+
+      <!-- Saved recipes -->
+      <div style="margin-bottom:18px;">
+        <div class="section-header"><h3>Saved Recipes</h3><span class="see-all">View all 247</span></div>
+        <div class="saved-row">
+          <div class="saved-thumb grad-green" onclick="openRecipe()">🥗</div>
+          <div class="saved-thumb grad-salmon" onclick="openRecipe()">🍣</div>
+          <div class="saved-thumb grad-orange" onclick="openRecipe()">🍳</div>
+          <div class="saved-thumb grad-purple" onclick="openRecipe()">🫐</div>
+          <div class="saved-thumb grad-teal" onclick="openRecipe()">🥦</div>
+          <div class="saved-thumb grad-red" onclick="openRecipe()">🍲</div>
+        </div>
+      </div>
+
+      <!-- Achievements -->
+      <div style="margin:0 20px 18px;">
+        <h3 style="margin-bottom:12px;">Badges & Achievements</h3>
+        <div class="badges-scroll">
+          
+          <div class="badge-item">
+            <div class="badge-circle" style="background:linear-gradient(135deg,#C8E6C9,#81C784);overflow:hidden;">
+              <img src="Bilder/symbol/greenlove.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+            </div>
+            <div class="badge-name">Plant<br>Lover</div>
+          </div>
+
+          <div class="badge-item">
+            <div class="badge-circle" style="background:linear-gradient(135deg,#C8E6C9,#81C784);overflow:hidden;">
+              <img src="Bilder/symbol/chef.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+            </div>
+            <div class="badge-name">Home<br>Chef</div>
+          </div>
+
+          <div class="badge-item">
+            <div class="badge-circle" style="background:linear-gradient(135deg,#C8E6C9,#81C784);overflow:hidden;">
+              <img src="Bilder/symbol/ai.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+            </div>
+            <div class="badge-name">AI<br>Explorer</div>
+          </div>
+
+          <div class="badge-item">
+            <div class="badge-circle" style="background:linear-gradient(135deg,#C8E6C9,#81C784);overflow:hidden;">
+              <img src="Bilder/symbol/tracking.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+            </div>
+            <div class="badge-name">Food<br>Streak</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Meal Logging -->
+      <div style="margin:0 20px 24px;background:linear-gradient(135deg,#F3F0FF,#EDE7F6);border-radius:var(--radius);padding:16px;border:1.5px solid #D1C4E9;">
+        <div style="font-size:14px;font-weight:600;color:#4527A0;margin-bottom:6px;">✦ AI Meal Logging</div>
+        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Take a photo of your meal and AI will identify and log it automatically</div>
+        <div style="background:var(--green);color:white;border-radius:12px;padding:13px;text-align:center;font-size:14px;font-weight:600;cursor:pointer;" onclick="showToast('Camera opened — point at your meal!')">Log a Meal with AI</div>
+      </div>
+    </div>
+
+    <!-- ========== WRAPPED / PROGRESS ========== -->
+    <div id="page-wrapped" class="page">
+      <div style="padding:14px 20px 8px;display:flex;align-items:center;gap:10px;">
+        <div style="cursor:pointer;font-size:22px;color:var(--text-secondary);padding:4px;" onclick="navigateTo('me')">←</div>
+        <h2>Weekly Wrapped</h2>
+      </div>
+
+      <div class="wrapped-hero">
+        <div class="wrapped-week">Week of April 21, 2026</div>
+        <div style="font-size:14px;opacity:0.75;margin-bottom:4px;">Your Health Score</div>
+        <div class="wrapped-score">84 <span class="wrapped-score-max">/100</span></div>
+        
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-emoji"></div><div class="stat-value">14</div><div class="stat-label">Meals logged</div></div>
+        <div class="stat-card"><div class="stat-emoji"></div><div class="stat-value">9</div><div class="stat-label">New recipes tried</div></div>
+        <div class="stat-card"><div class="stat-emoji"></div><div class="stat-value">94%</div><div class="stat-label">Healthy purchases</div></div>
+        <div class="stat-card"><div class="stat-emoji"></div><div class="stat-value">340 kr</div><div class="stat-label">Saved vs. eating out</div></div>
+      </div>
+
+      <div class="streak-card">
+        <div class="streak-flame"></div>
+        <div>
+          <div class="streak-count">8-day streak</div>
+          <div class="streak-label">Personal best: 14 days<br>Keep going! </div>
+        </div>
+      </div>
+
+      <div style="margin:0 20px 18px;">
+        <h3 style="margin-bottom:12px;">Achievements this week</h3>
+        <div class="badges-scroll">
+          <div class="badge-item"><div class="badge-circle" style="background:linear-gradient(135deg,#FFD700,#FFA500);">🔥</div><div class="badge-name">Streak<br>Master</div></div>
+          <div class="badge-item"><div class="badge-circle" style="background:linear-gradient(135deg,#C8E6C9,#81C784);">🌍</div><div class="badge-name">Sustainable<br>Eater</div></div>
+          <div class="badge-item"><div class="badge-circle" style="background:linear-gradient(135deg,#FFECB3,#FFD54F);">⭐</div><div class="badge-name">New<br>Unlock!</div></div>
+          <div class="badge-item"><div class="badge-circle" style="background:#E0E0E0;opacity:0.5;">🏆</div><div class="badge-name">2 days<br>away</div></div>
+        </div>
+      </div>
+
+      <div style="margin:0 20px 18px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;">
+        <h3 style="margin-bottom:4px;">Weekly Insights</h3>
+        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Based on your meals, purchases & activity</div>
+        <div class="insight-item"><div class="insight-icon">🥦</div><div class="insight-text">You ate <strong>5 portions of vegetables daily</strong> on average — above the recommended guideline!</div></div>
+        <div class="insight-item"><div class="insight-icon">🌙</div><div class="insight-text">Your <strong>dinners were your strongest meal</strong> — 6 out of 7 were health-verified recipes.</div></div>
+        <div class="insight-item"><div class="insight-icon">💡</div><div class="insight-text">Adding a <strong>protein source to breakfast</strong> could boost your morning energy score.</div></div>
+        <div class="insight-item"><div class="insight-icon">🏆</div><div class="insight-text">You're <strong>#3 in your friends group</strong> this week — keep going to take the lead!</div></div>
+      </div>
+
+      <!-- Friends leaderboard -->
+      <div style="margin:0 20px 18px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--border);"><h3>Friends Leaderboard</h3></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);">
+          <div style="font-size:20px;">🥇</div>
+          <div class="avatar" style="background:linear-gradient(135deg,#FFECB3,#FFD54F);">🧑‍🍳</div>
+          <div style="flex:1;font-size:14px;font-weight:600;">Chef Erik</div>
+          <div style="font-size:17px;font-weight:800;color:var(--orange);">94</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);">
+          <div style="font-size:20px;">🥈</div>
+          <div class="avatar" style="background:linear-gradient(135deg,#E1BEE7,#CE93D8);">👩</div>
+          <div style="flex:1;font-size:14px;font-weight:600;">Lina Hansen</div>
+          <div style="font-size:17px;font-weight:800;color:var(--text-secondary);">87</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--green-light);">
+          <div style="font-size:20px;">🥉</div>
+          <div class="avatar" style="background:linear-gradient(135deg,#C8E6C9,#A5D6A7);">👩</div>
+          <div style="flex:1;font-size:14px;font-weight:700;color:var(--green-dark);">You (Sarah)</div>
+          <div style="font-size:17px;font-weight:800;color:var(--green-dark);">84</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;">
+          <div style="font-size:20px;">4️⃣</div>
+          <div class="avatar" style="background:linear-gradient(135deg,#FFCDD2,#EF9A9A);">👨</div>
+          <div style="flex:1;font-size:14px;font-weight:600;">Johan M.</div>
+          <div style="font-size:17px;font-weight:800;color:var(--text-secondary);">71</div>
+        </div>
+      </div>
+
+      <div style="margin:0 20px 28px;background:var(--green);border-radius:var(--radius);padding:16px;text-align:center;color:white;cursor:pointer;box-shadow:0 4px 18px rgba(74,155,111,0.4);" onclick="showToast('Wrapped shared! 🎉')">
+        <div style="font-size:16px;font-weight:600;">Share My Weekly Wrapped ↗</div>
+        <div style="font-size:13px;opacity:0.8;margin-top:4px;">Let friends see your progress</div>
+      </div>
+    </div>
+
+  </div><!-- /pages -->
+
+  <!-- ===== RECIPE DETAIL MODAL ===== -->
+  <div class="modal-overlay" id="recipe-modal" onclick="closeModal(event)">
+    <div class="modal-sheet" id="recipe-sheet">
+      <div class="modal-handle"></div>
+      <div class="detail-img grad-green">🥗</div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-top:14px;">
+        <div style="flex:1;padding-right:10px;">
+          <div class="detail-title">Mediterranean Quinoa Bowl</div>
+          <div class="verified-badge">Health Verified ✓</div>
+        </div>
+        <div class="ai-chip" style="margin-top:4px;flex-shrink:0;">✦ AI Pick</div>
+      </div>
+      <div class="detail-meta-row">
+        <div class="detail-meta-item">⏱ 25 min</div>
+        <div class="detail-meta-item">👤 2 servings</div>
+        <div class="detail-meta-item">⭐ 4.8 (2.4k)</div>
+        <div class="detail-meta-item">💪 High protein</div>
+      </div>
+      <div class="nutr-row">
+        <div class="nutr-item"><div class="nutr-value">420</div><div class="nutr-label">kcal</div></div>
+        <div class="nutr-item"><div class="nutr-value">18g</div><div class="nutr-label">protein</div></div>
+        <div class="nutr-item"><div class="nutr-value">52g</div><div class="nutr-label">carbs</div></div>
+        <div class="nutr-item"><div class="nutr-value">14g</div><div class="nutr-label">fat</div></div>
+        <div class="nutr-item"><div class="nutr-value">8g</div><div class="nutr-label">fiber</div></div>
+      </div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:8px;">Ingredients</div>
+      <div style="background:var(--green-light);border-radius:10px;padding:9px 12px;font-size:12px;color:var(--green-dark);margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+        <strong>8 of 11 ingredients already at home</strong>
+      </div>
+      <div style="margin-bottom:16px;">
+        <div class="ing-row"><span>🌾 Quinoa (200g)</span><span class="ing-have">✓ At home</span></div>
+        <div class="ing-row"><span>🫘 Chickpeas (1 can)</span><span class="ing-have">✓ At home</span></div>
+        <div class="ing-row"><span>🧀 Feta cheese (80g)</span><span class="ing-have">✓ At home</span></div>
+        <div class="ing-row"><span>🍅 Cherry tomatoes (150g)</span><span class="ing-need">Add to list</span></div>
+        <div class="ing-row"><span>🥒 Cucumber (1 pcs)</span><span class="ing-need">Add to list</span></div>
+        <div class="ing-row"><span>🫒 Olive oil (3 tbsp)</span><span class="ing-have">✓ At home</span></div>
+        <div class="ing-row"><span>🧅 Red onion (½)</span><span class="ing-have">✓ At home</span></div>
+        <div class="ing-row"><span>🍋 Lemon juice (2 tbsp)</span><span class="ing-have">✓ At home</span></div>
+      </div>
+      <div class="cta-row">
+        <div class="cta-btn secondary" onclick="showToast('Saved to recipes!');closeModalDirect()">Save Recipe</div>
+        <div class="cta-btn primary" onclick="showToast('Added to Wednesday!');navigateTo('plan');closeModalDirect()">Add to Plan</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Bottom nav -->
+  <nav class="bottom-nav">
+    <div class="nav-item" id="nav-social" onclick="navigateTo('social')">
+      <div class="nav-icon">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <span class="nav-label">Social</span>
+    </div>
+    <div class="nav-item active" id="nav-discover" onclick="navigateTo('discover')">
+      <div class="nav-icon">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
+      <span class="nav-label">Discover</span>
+    </div>
+    <div class="nav-item" id="nav-plan" onclick="navigateTo('plan')">
+      <div class="nav-icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <span class="nav-label">Plan</span>
+    </div>
+    <div class="nav-item" id="nav-shop" onclick="navigateTo('shop')">
+      <div class="nav-icon">
+        <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      </div>
+      <span class="nav-label">Kitchen</span>
+    </div>
+    <div class="nav-item" id="nav-me" onclick="navigateTo('me')">
+      <div class="nav-icon">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <span class="nav-label">Me</span>
+    </div>
+  </nav>
+</div>
+
+<div class="page-title" style="font-size:12px;opacity:0.6;max-width:393px;text-align:center;line-height:1.6;">
+  Click tabs to navigate · Tap recipes to see detail modal · Try the Shopping List checkboxes<br>
+  Social → Discover → Recipes → Plan → Shopping List → Inventory → Profile → Wrapped
+</div>
+
+<script>
+// Navigation
+const pages = ['discover','discover-recipes','social','plan','ai-log','shop','me','wrapped'];
+
+function navigateTo(id) {
+  pages.forEach(p => {
+    const pg = document.getElementById('page-'+p);
+    const nv = document.getElementById('nav-'+p);
+    if (pg) pg.classList.remove('active');
+    if (nv) {
+      nv.classList.remove('active');
+      nv.querySelector('.nav-label').style.color = '';
+    }
+  });
+  const target = document.getElementById('page-'+id);
+  if (target) { target.classList.add('active'); target.scrollTop = 0; }
+  const navId = id === 'wrapped' ? 'me' : (id === 'discover-recipes' ? 'discover' : (id === 'ai-log' ? 'plan' : id));
+  const navEl = document.getElementById('nav-'+navId);
+  if (navEl) { navEl.classList.add('active'); navEl.querySelector('.nav-label').style.color = 'var(--green)'; }
+}
+
+// Shop tabs
+function switchTab(tab) {
+  ['list','inv'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('sub-'+t).classList.toggle('active', t===tab);
+  });
+}
+
+// ====== RECIPE DATA ======
+const allRecipes = [
+  // Breakfast
+  { img: 'Bilder/Breakfast/ebe2611796f477c93f94dd14f485103a.jpg', name: 'Berry Smoothie Bowl', sub: 'Blueberry, banana & granola on a pink smoothie base', time: '10 min', kcal: 320, likes: 1842, tags: ['breakfast','vegetarian','quick'] },
+  { img: 'Bilder/Breakfast/a765e62a80f29d7ee58634c8e31bf2c0.jpg', name: 'Caramelised Banana Oatmeal', sub: 'Oats topped with pan-fried banana, blueberries & peanut butter', time: '15 min', kcal: 410, likes: 2103, tags: ['breakfast','vegetarian','budget'] },
+  { img: 'Bilder/Breakfast/c951e091c2b0cbe923f73defc9b3f42b.jpg', name: 'Scrambled Eggs & Toast', sub: 'Fluffy eggs with sourdough, avocado & cherry tomatoes', time: '12 min', kcal: 390, likes: 987, tags: ['breakfast','quick','high-protein'] },
+  { img: 'Bilder/Breakfast/00ac539192ca76fff7fce278c3712229.jpg', name: 'Spinach & Feta Omelette', sub: 'Golden omelette filled with wilted spinach and crumbled feta', time: '15 min', kcal: 310, likes: 1456, tags: ['breakfast','vegetarian','high-protein'] },
+  { img: 'Bilder/Breakfast/a47d3b94bffc43ff5fc6eeab388e759e.jpg', name: 'Cheese Omelette & Avocado', sub: 'Melted cheddar omelette with fresh sliced avocado', time: '12 min', kcal: 380, likes: 734, tags: ['breakfast','high-protein','quick'] },
+  { img: 'Bilder/Breakfast/91fdb0dffff3ef23660b09a37a25fa51.jpg', name: 'Protein Pancakes', sub: 'Light mini pancakes served with yogurt and fresh blueberries', time: '20 min', kcal: 340, likes: 2841, tags: ['breakfast','high-protein','vegetarian'] },
+  { img: 'Bilder/Breakfast/301252a9deb481e179e8a95949a69bb6.jpg', name: 'Fruity Rice Cakes', sub: 'Rice cakes with peanut butter, banana, strawberry & blueberry', time: '5 min', kcal: 260, likes: 612, tags: ['breakfast','vegetarian','quick','budget'] },
+  // Lunch
+  { img: 'Bilder/Fish/cf1f6eda812e7b8eeb978da2f90db42d.jpg', name: 'Grilled Salmon Salad', sub: 'Herb-crusted salmon on greens with avocado & cherry tomatoes', time: '20 min', kcal: 440, likes: 3201, tags: ['lunch','high-protein'] },
+  { img: 'Bilder/Fish/20aa2b1b366d0c6811458c72a08403bc.jpg', name: 'Salmon Power Bowl', sub: 'Baked salmon with avocado, boiled egg, tomatoes & olives', time: '25 min', kcal: 520, likes: 2748, tags: ['lunch','high-protein'] },
+  { img: 'Bilder/Fish/17199c736fa9db346ef6f02394508516.jpg', name: 'Crispy Chicken Caesar', sub: 'Breaded chicken on romaine with parmesan and croutons', time: '25 min', kcal: 460, likes: 4102, tags: ['lunch','dinner','high-protein'] },
+  { img: 'Bilder/Salads/f1f1f6055075c0fe268455ba7f958b36.jpg', name: 'Chickpea & Avocado Salad', sub: 'Chickpeas and avocado with feta, red onion & herbs', time: '10 min', kcal: 380, likes: 1834, tags: ['lunch','vegetarian','quick','budget'] },
+  { img: 'Bilder/Salads/6f6b1d024c681a7a179096b247f5d078.jpg', name: 'Cobb Salad with Chicken', sub: 'Grilled chicken, soft egg, avocado, tomato & feta', time: '20 min', kcal: 480, likes: 1678, tags: ['lunch','high-protein'] },
+  { img: 'Bilder/Salads/efca9703789104d975713b108611a233.jpg', name: 'Power Bowl with Lentils', sub: 'Spiced sweet potato, lentils, avocado & cottage cheese', time: '25 min', kcal: 460, likes: 1390, tags: ['lunch','dinner','high-protein','vegetarian','budget'] },
+  // Dinner
+  { img: 'Bilder/Fish/472b73deeb3bfcc111bd7240a9877b2a.jpg', name: 'Baked Salmon & Brown Rice', sub: 'Honey-glazed salmon with roasted broccoli, tomatoes & rice', time: '30 min', kcal: 490, likes: 1923, tags: ['dinner','high-protein'] },
+  { img: 'Bilder/Fish/849ee0a13084d6fdb020b9b72256d294.jpg', name: 'Salmon with Broccoli & Potatoes', sub: 'Pan-seared salmon fillet with roasted potatoes and broccoli', time: '35 min', kcal: 510, likes: 1567, tags: ['dinner','high-protein'] },
+  { img: 'Bilder/Salads/05974db2d426b540f8ce6e2879587cef.jpg', name: 'Sweet Potato & Chickpea Salad', sub: 'Roasted sweet potato and chickpeas on arugula with feta', time: '30 min', kcal: 420, likes: 2156, tags: ['lunch','dinner','vegetarian','budget'] },
+  // Snacks
+  { img: 'Bilder/Snacks/5e2e8817da589c3cfd04cfe66690ec36.jpg', name: 'Avocado Toast', sub: 'Smashed avocado on sourdough with tomatoes & red onion', time: '8 min', kcal: 290, likes: 2341, tags: ['snack','vegetarian','quick','budget'] },
+  { img: 'Bilder/Snacks/2bec86d58023367ae9204c6a3016da15.jpg', name: 'Tomato Mozzarella Toasts', sub: 'Crusty bread with melted mozzarella, tomato & fresh basil', time: '10 min', kcal: 310, likes: 1876, tags: ['snack','vegetarian','quick'] },
+  { img: 'Bilder/Snacks/d31206d7b5f61442ea3f764040c09735.jpg', name: 'Frozen Banana Bites', sub: 'Banana pieces filled with peanut butter, dipped in dark chocolate', time: '10 min', kcal: 180, likes: 3456, tags: ['snack','vegetarian','quick','budget'] },
+  { img: 'Bilder/Snacks/0417712e9612653918b5c4c88561e355.jpg', name: 'Banana Boats with Chocolate', sub: 'Baked banana with peanut butter, dark chocolate & crushed nuts', time: '15 min', kcal: 220, likes: 1234, tags: ['snack','vegetarian','budget'] },
+];
+
+const chipFilterMap = {
+  'All': 'all', 'Breakfast': 'breakfast', 'Lunch': 'lunch', 'Dinner': 'dinner',
+  'High Protein': 'high-protein', 'Vegetarian': 'vegetarian', 'Quick': 'quick', 'Budget': 'budget'
+};
+
+const gridTitles = {
+  'all': 'Made for you ✦', 'breakfast': 'Breakfast Picks', 'lunch': 'Lunch Ideas',
+  'dinner': 'Dinner Recipes', 'high-protein': 'High Protein', 'vegetarian': 'Vegetarian',
+  'quick': 'Quick & Easy', 'budget': 'Budget-Friendly'
+};
+
+function fmtLikes(n) { return n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : n; }
+
+function renderGrid(filter) {
+  const grid = document.getElementById('recipe-grid');
+  const title = document.getElementById('grid-title');
+  if (!grid) return;
+  const list = filter === 'all' ? allRecipes : allRecipes.filter(r => r.tags.includes(filter));
+  title.textContent = gridTitles[filter] || 'Made for you ✦';
+  if (!list.length) {
+    grid.innerHTML = '<div style="padding:24px 0;text-align:center;color:var(--text-secondary);font-size:14px;">No recipes found</div>';
+    return;
+  }
+  grid.innerHTML = list.map(r => `
+    <div class="recipe-card" onclick="openRecipe()">
+      <div style="height:140px;overflow:hidden;border-radius:12px 12px 0 0;">
+        <img src="${r.img}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+      </div>
+      <div class="recipe-info">
+        <div class="verified-badge">Health Verified</div>
+        <div class="recipe-title">${r.name}</div>
+        <div class="recipe-meta"><span>${r.time}</span><span>${r.kcal} kcal</span></div>
+      </div>
+      <div class="recipe-actions">
+        <div class="action-btn liked">♥ ${fmtLikes(r.likes)}</div>
+        <div class="action-btn" onclick="event.stopPropagation();showToast('Saved!')">Save</div>
+      </div>
+    </div>`).join('');
+}
+
+// Filter chips
+function setChip(el) {
+  document.querySelectorAll('#filter-chips .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  const filter = chipFilterMap[el.textContent.trim()] || 'all';
+  renderGrid(filter);
+}
+
+// Day pills
+function setDay(el) {
+  document.querySelectorAll('#days-row .day-pill').forEach(d => d.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// AI food logging
+function analyzeAIPhoto() {
+  showToast('Photo analyzed · 87% confidence');
+}
+
+// Recipe modal
+function openRecipe() {
+  document.getElementById('recipe-modal').classList.add('open');
+}
+function closeModal(e) {
+  if (e.target === document.getElementById('recipe-modal')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('recipe-modal').classList.remove('open');
+}
+
+// Shopping check
+function toggleCheck(item) {
+  const box = item.querySelector('.check-box');
+  const name = item.querySelector('.item-name');
+  const checked = box.classList.toggle('checked');
+  box.textContent = checked ? '✓' : '';
+  name.classList.toggle('checked', checked);
+  if (checked) showToast('Checked off ✓');
+}
+
+// Toast
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+navigateTo('discover');
+renderGrid('all');
+</script>
+</body>
+</html>
