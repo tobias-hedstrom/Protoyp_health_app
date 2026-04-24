@@ -70,22 +70,22 @@ body {
 .page::-webkit-scrollbar { display: none; }
 .page.active { opacity: 1; pointer-events: all; transform: translateY(0); }
 .bottom-nav {
-  height: 83px; background: rgba(255,255,255,0.96);
+  height: 66px; background: rgba(255,255,255,0.96);
   backdrop-filter: blur(20px); border-top: 1px solid var(--border);
-  display: flex; align-items: flex-start; padding-top: 10px;
+  display: flex; align-items: flex-start; padding-top: 8px;
   flex-shrink: 0; z-index: 100; position: relative;
 }
 .nav-item {
   flex: 1; display: flex; flex-direction: column;
-  align-items: center; gap: 4px; cursor: pointer;
-  padding: 4px; border-radius: 12px;
+  align-items: center; gap: 3px; cursor: pointer;
+  padding: 3px; border-radius: 10px;
   transition: transform 0.15s ease; -webkit-tap-highlight-color: transparent;
 }
 .nav-item:active { transform: scale(0.88); }
-.nav-icon { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; }
-.nav-icon svg { width: 24px; height: 24px; stroke: #AEAEB2; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.2s; }
+.nav-icon { width: 21px; height: 21px; display: flex; align-items: center; justify-content: center; }
+.nav-icon svg { width: 19px; height: 19px; stroke: #AEAEB2; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.2s; }
 .nav-item.active .nav-icon svg { stroke: var(--green); }
-.nav-label { font-size: 10px; font-weight: 500; color: var(--text-tertiary); transition: color 0.2s; }
+.nav-label { font-size: 8px; font-weight: 500; color: var(--text-tertiary); transition: color 0.2s; }
 .nav-item.active .nav-label { color: var(--green); }
 
 /* Typography */
@@ -1262,12 +1262,33 @@ h3 { font-size: 17px; font-weight: 700; color: var(--text); }
       <div style="margin-bottom:18px;">
         <div class="section-header"><h3>Saved Recipes</h3><span class="see-all">View all 247</span></div>
         <div class="saved-row">
-          <div class="saved-thumb grad-green" onclick="openRecipe()">🥗</div>
-          <div class="saved-thumb grad-salmon" onclick="openRecipe()">🍣</div>
-          <div class="saved-thumb grad-orange" onclick="openRecipe()">🍳</div>
-          <div class="saved-thumb grad-purple" onclick="openRecipe()">🫐</div>
-          <div class="saved-thumb grad-teal" onclick="openRecipe()">🥦</div>
-          <div class="saved-thumb grad-red" onclick="openRecipe()">🍲</div>
+          <div class="saved-thumb grad-green" onclick="openRecipe()" style="overflow:hidden;">
+            <img src="Bilder/Salads/q-bowl.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+          </div>
+
+          <div class="saved-thumb grad-green" onclick="openRecipe()" style="overflow:hidden;">
+            <img src="Bilder/dessert/tiram.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+          </div>
+
+          <div class="saved-thumb grad-green" onclick="openRecipe()" style="overflow:hidden;">
+            <img src="Bilder/dinner/2.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+          </div>
+
+          <div class="saved-thumb grad-green" onclick="openRecipe()" style="overflow:hidden;">
+            <img src="Bilder/dinner/1.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+          </div>
+
+          <div class="saved-thumb grad-green" onclick="openRecipe()" style="overflow:hidden;">
+            <img src="Bilder/dessert/brulle.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+          </div>
+
+          <div class="saved-thumb grad-green" onclick="openRecipe()" style="overflow:hidden;">
+            <img src="Bilder/lunch/2.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+          </div>
+
+          <div class="saved-thumb grad-green" onclick="openRecipe()" style="overflow:hidden;">
+            <img src="Bilder/dinner/3.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
+          </div>
         </div>
       </div>
 
@@ -1306,12 +1327,6 @@ h3 { font-size: 17px; font-weight: 700; color: var(--text); }
         </div>
       </div>
 
-      <!-- AI Meal Logging -->
-      <div style="margin:0 20px 24px;background:linear-gradient(135deg,#F3F0FF,#EDE7F6);border-radius:var(--radius);padding:16px;border:1.5px solid #D1C4E9;">
-        <div style="font-size:14px;font-weight:600;color:#4527A0;margin-bottom:6px;">✦ AI Meal Logging</div>
-        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Take a photo of your meal and AI will identify and log it automatically</div>
-        <div style="background:var(--green);color:white;border-radius:12px;padding:13px;text-align:center;font-size:14px;font-weight:600;cursor:pointer;" onclick="showToast('Camera opened — point at your meal!')">Log a Meal with AI</div>
-      </div>
     </div>
 
     <!-- ========== WRAPPED / PROGRESS ========== -->
