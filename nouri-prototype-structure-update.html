@@ -978,7 +978,7 @@ h3 { font-size: 17px; font-weight: 700; color: var(--text); }
 
   <!-- App chrome: status bar -->
   <div class="status-bar">
-    <span class="status-time">9:41</span>
+    <span class="status-time">11:46</span>
     <div class="status-icons">
       <span>5G</span>
       <span>⌃</span>
@@ -992,8 +992,8 @@ h3 { font-size: 17px; font-weight: 700; color: var(--text); }
     <div id="page-discover" class="page active">
       <div class="discover-header">
         <div>
-          <div class="discover-greeting">Good morning, Sarah </div>
-          <h2>What's for lunch?</h2>
+          <div class="discover-greeting">Hi Sarah </div>
+          <h2>What's for lunch today?</h2>
         </div>
         <div class="avatar" style="width:44px;height:44px;border-radius:50%;overflow:hidden;" onclick="navigateTo('me')">
           <img src="Bilder/Profilepic/8442c89cbfe6a9808982c161b8fd891f.jpg" style="width:100%;height:100%;object-fit:cover;display:block;">
@@ -1586,6 +1586,28 @@ h3 { font-size: 17px; font-weight: 700; color: var(--text); }
             <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">2 people can edit this list</div>
           </div>
           <div class="toggle"></div>
+        </div>
+      </div>
+
+      <!-- Order inventory botton -->
+      <div class="wrapped-entry-card">
+        <div class="wrapped-entry-top">
+          <div class="wrapped-entry-copy">
+            <div style="font-size:11px;font-weight:400px;letter-spacing:0.9px;text-transform:uppercase;opacity:0.72;">Order your shoppinglist</div>
+            <div class="wrapped-entry-title">Uber eats</div>
+            <div class="wrapped-entry-sub">Let Uber eats pick up your grocery's</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Send to ICA -->
+      <div class="wrapped-entry-card">
+        <div class="wrapped-entry-top">
+          <div class="wrapped-entry-copy">
+            <div style="font-size:11px;font-weight:400px;letter-spacing:0.9px;text-transform:uppercase;opacity:0.72;">Send the shopping list to ICA</div>
+            <div class="wrapped-entry-title">ICA selfscanning</div>
+            <div class="wrapped-entry-sub">Update the selfscanning service list</div>
+          </div>
         </div>
       </div>
 
@@ -2713,7 +2735,7 @@ const allRecipes = [
   /* Recipe 38 - Influencer food image */
   { id: 38, name: 'Egg Toast Breakfast', img: 'Bilder/Influencer/Egg_on_toast.jpg', sub: 'Toast topped with egg for an easy savory breakfast.', time: '10 min', likes: 1986, rating: '4.7', tags: ['breakfast','high-protein','quick'], atHome: true, nutrition: { kcal: 330, protein: '19g', carbs: '21g', fat: '18g' }, ingredients: ['Bread', 'Eggs', 'Butter', 'Greens', 'Pepper'], instructions: ['Toast the bread.', 'Cook the eggs to your preferred texture.', 'Serve over toast with greens and pepper.'] },
   /* Recipe 39 - Influencer food image */
-  { id: 39, name: 'French Chicken Plate', img: 'Bilder/Influencer/Kykling_frech.jpg', sub: 'A protein-forward chicken plate with a polished dinner feel.', time: '25 min', likes: 2284, rating: '4.8', tags: ['dinner','high-protein'], atHome: false, nutrition: { kcal: 530, protein: '37g', carbs: '31g', fat: '27g' }, ingredients: ['Chicken', 'Roasted vegetables', 'Potatoes', 'Herbs'], instructions: ['Cook the chicken until golden and juicy.', 'Roast the vegetables and potatoes.', 'Plate everything together with herbs.'] },
+  { id: 39, name: 'Mango Chicken', img: 'Bilder/Influencer/Kykling_frech.jpg', sub: 'A protein-forward chicken plate with a polished dinner feel.', time: '25 min', likes: 2284, rating: '4.8', tags: ['dinner','high-protein'], atHome: false, nutrition: { kcal: 530, protein: '37g', carbs: '31g', fat: '27g' }, ingredients: ['Chicken', 'Roasted vegetables', 'Potatoes', 'Herbs'], instructions: ['Cook the chicken until golden and juicy.', 'Roast the vegetables and potatoes.', 'Plate everything together with herbs.'] },
   /* Recipe 40 - Influencer food image */
   { id: 40, name: 'Picadeli Rainbow Salad', img: 'Bilder/Influencer/Picadeli.jpg', sub: 'A colorful ready-built salad bowl packed with crunch.', time: '8 min', likes: 2640, rating: '4.7', tags: ['lunch','vegetarian','quick'], atHome: false, nutrition: { kcal: 390, protein: '16g', carbs: '34g', fat: '19g' }, ingredients: ['Mixed greens', 'Veg toppings', 'Beans or grains', 'Dressing'], instructions: ['Build the salad base.', 'Add the toppings and grains.', 'Toss lightly with dressing before serving.'] },
   /* Recipe 41 - Influencer food image */
@@ -2810,7 +2832,7 @@ const socialPostRecipes = {
     id: 1,
     user: 'Emma Lindström',
     subtitle: 'Social Post 1 Recipe Modal',
-    recipeName: 'French Chicken Plate',
+    recipeName: 'Mango Chicken',
     img: 'Bilder/Influencer/Kykling_frech.jpg',
     description: 'A polished but practical chicken dinner with roasted vegetables and plenty of protein for a balanced evening meal.',
     ingredients: ['Chicken breast', 'Baby potatoes', 'Roasted carrots', 'Green beans', 'Olive oil', 'Fresh herbs', 'Lemon'],
